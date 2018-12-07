@@ -1,7 +1,6 @@
 package com.imooc.spark
 
-import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.sql.SparkSession
 
 
 object SparkSqlContext {
@@ -9,17 +8,19 @@ object SparkSqlContext {
   def main(args: Array[String]): Unit = {
     
     val path = args(0)
+   
+    val spark = SparkSession.builder
+      .master("local")
+      .appName("Word_Count")
+      .config("spark.some.config.option", "some-value")
+      .getOrCreate()
     
-    val sparkConf = new SparkConf()
-//    sparkConf.setAppName("DontGiveUp").setMaster("local[2]")
-    val sc = new SparkContext(sparkConf)
-    val sqlContext = new SQLContext(sc)
+    import spark.implicits._
+
+    val df = spark.read.json(path)
+    df.show()
     
-    val people = sqlContext.read.format("json").load(path)
-    people.printSchema()
-    people.show()
-    
-    sc.stop()
-    
+    spark.stop()
+   
   }
 }
